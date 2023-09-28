@@ -42,8 +42,8 @@ stages:
         Contents: '**/target/*.?(war|jar)'
         TargetFolder: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)'
 
-    - upload: $(Build.ArtifactStagingDirectory)
-      artifact: drop
+    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)
+      artifact: $(Build.BuildNumber)
 
 - stage: Deploy
   displayName: Deploy stage

@@ -27,10 +27,10 @@ stages:
       inputs:
         SourceFolder: '$(System.DefaultWorkingDirectory)'
         Contents: '**/target/*.?(war|jar)'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/MyWebApp'
 
-    - publish: $(Build.ArtifactStagingDirectory)
-      artifact: MyWebApp-$(Build.BuildNumber)
+    - upload: $(Build.ArtifactStagingDirectory)
+      artifact: MyWebApp
 
 - stage: Deploy
   displayName: Deploy stage
@@ -52,4 +52,4 @@ stages:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
-              package: '$(Pipeline.Workspace)/drop/MyWebApp-$(Build.BuildNumber)/**/*.?(war|jar)'
+              package: '$(Pipeline.Workspace)/drop/MyWebApp/**/*.?(war|jar)'

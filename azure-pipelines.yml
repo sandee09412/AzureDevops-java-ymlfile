@@ -40,10 +40,10 @@ stages:
       inputs:
         SourceFolder: '$(System.DefaultWorkingDirectory)'
         Contents: '**/target/*.?(war|jar)'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/Build_$(Build.BuildNumber)_$(Build.BuildDate)'
 
-    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)
-      artifact: $(Build.BuildNumber)
+    - publish: $(Build.ArtifactStagingDirectory)/Build_$(Build.BuildNumber)_$(Build.BuildDate)
+      artifact: Build_$(Build.BuildNumber)_$(Build.BuildDate)
 
 - stage: Deploy
   displayName: Deploy stage

@@ -22,19 +22,19 @@ stages:
       inputs:
         mavenPomFile: 'MyWebApp/pom.xml'
 
-    # Generate a unique folder name based on the timestamp
-    - script: echo $(Build.BuildNumber) > $(Build.SourcesDirectory)/buildversion
-      displayName: 'Generate Build Version'
+    - powershell: |
+        $timestamp = Get-Date -Format "yyyyMMddHHmmss"
+        Write-Host "##vso[task.setvariable variable=ArtifactVersion]$timestamp"
+      displayName: 'Set Artifact Version'
 
-    - task: CopyFiles@2
-      displayName: 'Copy Files to artifact staging directory'
-      inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)'
-        Contents: '**/target/*.?(war|jar)'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/$(cat $(Build.SourcesDirectory)/buildversion)'
+    - script: |
+        mkdir "$(Build.ArtifactStagingDirectory)/$(ArtifactVersion)"
+        cp -r $(System.DefaultWorkingDirectory)/**/target/*.?(war|jar) "$(Build.ArtifactStagingDirectory)/$(ArtifactVersion)/"
+      displayName: 'Copy Files to Artifact Directory'
 
-    - upload: $(Build.ArtifactStagingDirectory)
+    - publish: $(Build.ArtifactStagingDirectory)/$(ArtifactVersion)
       artifact: drop
+      displayName: 'Publish Artifact'
 
 - stage: Deploy
   displayName: Deploy stage
@@ -56,4 +56,4 @@ stages:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
-              package: '$(Pipeline.Workspace)/drop/$(cat $(Build.SourcesDirectory)/buildversion)/**/*.?(war|jar)'
+              package: '$(Pipeline.Workspace)/drop/$(ArtifactVersion)/**/*.?(war|jar)'

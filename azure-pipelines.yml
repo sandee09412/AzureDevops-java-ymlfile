@@ -1,23 +1,10 @@
-# Maven package Java project Web App to Linux on Azure
-# Build your Java project and deploy it to Azure as a Linux web app
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
 trigger:
 - main
 
 variables:
-
-  # Azure Resource Manager connection created during pipeline creation
   azureSubscription: 'eecd4c52-26ac-46e8-a025-2324a19b7a34'
-
-  # Web app name
   webAppName: 'java-spring-boot7'
-
-  # Environment name
   environmentName: 'java-spring-boot7'
-
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
 
 stages:
@@ -35,12 +22,16 @@ stages:
       inputs:
         mavenPomFile: 'MyWebApp/pom.xml'
 
+    # Generate a unique folder name based on the timestamp
+    - script: echo $(Build.BuildNumber) > $(Build.SourcesDirectory)/buildversion
+      displayName: 'Generate Build Version'
+
     - task: CopyFiles@2
       displayName: 'Copy Files to artifact staging directory'
       inputs:
         SourceFolder: '$(System.DefaultWorkingDirectory)'
         Contents: '**/target/*.?(war|jar)'
-        TargetFolder: '$(Build.ArtifactStagingDirectory)/$(Build.BuildNumber)'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/$(cat $(Build.SourcesDirectory)/buildversion)'
 
     - upload: $(Build.ArtifactStagingDirectory)
       artifact: drop
@@ -65,4 +56,4 @@ stages:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
               appName: $(webAppName)
-              package: '$(Pipeline.Workspace)/drop/$(Build.BuildNumber)/**/*.?(war|jar)'
+              package: '$(Pipeline.Workspace)/drop/$(cat $(Build.SourcesDirectory)/buildversion)/**/*.?(war|jar)'
